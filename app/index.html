@@ -11,22 +11,27 @@
       background-color: green;
       color: white;
     }
+    .keywords {
+      float: left;
+      min-width: 60px;
+      padding-right: 5px;
+      margin-right: 5px;
+      border-right: 1px dashed grey;
+    }
   </style>
 </head>
 <body>
-  <textarea name="longtext" class="snippetInput" cols="30" rows="10"></textarea>
-  <div class="snippetList"></div>
-
   <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
   <script type="text/javascript" src="https://rawgit.com/accursoft/caret/master/jquery.caret.js"></script>
   <script type="text/javascript" src="snippeter.js"></script>
+
+  <h1>Basic example</h1>
+
+  <textarea name="longtext" class="snippetInput" cols="30" rows="5"></textarea>
+  <div class="snippetList"></div>
+
   <script type="text/javascript" >
     $(document).ready(function () {
-
-      $('.snippetList').on('update', function (event) {
-        console.log('.snippetList update', event);
-      });
-
       var snippeter = new Snippeter ({
         startTag: '##',
         inputElements: $('.snippetInput'),
@@ -37,6 +42,42 @@
           'der Beste!'
         ]
       });
+    });
+  </script>
+
+
+  <hr>
+  <h1>Complex example</h1>
+
+  Starttag: <input id="complexStartTag" type="text" value="++" />
+  <br />
+  <textarea id="complexInput" cols="30" rows="5"></textarea>
+  <div id="complexList"></div>
+
+  <script type="text/javascript" >
+    $(document).ready(function () {
+
+      var startTag = $('#complexStartTag');
+
+      $('#complexList').on('update', function (event) {
+        console.log('#complexList update', event);
+      });
+
+      var snippeter = new Snippeter ({
+        startTag: startTag.val(),
+        inputElements: $('#complexInput'),
+        listElement: $('#complexList'),
+        snippets: [
+          {keywords: 'Name', value: 'Marco'},
+          {keywords: 'Lob', value: 'Marco ist der beste'},
+          {keywords: 'korrekte Rechtschreibung', value: 'Der Beste!'}
+        ]
+      });
+
+      startTag.change(function () {
+        snippeter.startTag = startTag.val();
+      });
+
     });
   </script>
 </body>

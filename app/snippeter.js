@@ -10,7 +10,9 @@ function Snippeter (conf) {
   if ('snippetToHtml' in conf) this.snippetToHtml = conf.snippetToHtml;
   if ('listElement' in conf) this.listElement = conf.listElement;
   if ('snippetMatcher' in conf) this.snippetMatcher = conf.snippetMatcher;
-  if ('highlighter' in conf) this.highligher(conf.highlighter);
+  if ('highlighter' in conf) this.highlighter = conf.highlighter;
+  if ('snippetKeywords' in conf) this.snippetKeywords = conf.snippetKeywords;
+  if ('snippetValue' in conf) this.snippetValue = conf.snippetValue;
 
   this.init();
 
@@ -141,7 +143,9 @@ Snippeter.prototype.updateList = function updateList (snippets, searchText, targ
     var that = this;
     snippets.forEach(function (snippet) {
       var snippetHtml = that.snippetToHtml(snippet);
+      console.log(snippetHtml);
       snippetHtml = that.highlighter(snippetHtml, searchText);
+      console.log(snippetHtml);
       var snippetElement = $(snippetHtml);
       snippetElement.click(function () {
         that.insert(snippet, target);
@@ -166,13 +170,21 @@ Snippeter.prototype.insert = function insert (snippet, target)
   var caretPos = target.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
 
+  var snippetValue;
+  if (typeof snippet === 'string') {
+    snippetValue = snippet;
+  }
+  if (typeof snippet === 'object') {
+    snippetValue = this.snippetValue(snippet);
+  }
+
   target.val(
     text.substring(0, startTagPos)
-    + snippet
+    + snippetValue
     + text.substring(caretPos)
   );
 
-  target.caret(startTagPos + snippet.length);
+  target.caret(startTagPos + snippetValue.length);
 
   target.trigger('keyup');
 }
@@ -183,9 +195,13 @@ Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
   for (i = 0; i < words.length; i++) {
     if (words[i] !== ' ' && words[i] !== '') {
       var regExp = new RegExp('(' + words[i] + ')', 'gi');
-      if (!snippet.match(regExp)) {
+      if (typeof snippet === 'string' && !snippet.match(regExp)) {
         return false;
       }
+      if (typeof snippet === 'object'
+          && !(this.snippetKeywords(snippet).match(regExp) || this.snippetValue(snippet).match(regExp))
+      )
+        return false;
     }
   }
   return true;
@@ -193,7 +209,16 @@ Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
 
 Snippeter.prototype.snippetToHtml = function snippetToHtml (snippet)
 {
-  return '<div>' + snippet + '</div>';
+  console.log('snippetToHtml', snippet);
+  if (typeof snippet === 'string') {
+    return '<div>' + snippet + '</div>';
+  }
+  if (typeof snippet === 'object') {
+    return '<div>'
+      + '<div class="keywords">' + this.snippetKeywords(snippet) + '</div>'
+      + '<div class="value">' + this.snippetValue(snippet) + '</div>'
+      + '</div>';
+  }
 };
 
 Snippeter.prototype.highlighter = function highlighter (source, highlight) {
@@ -210,4 +235,14 @@ Snippeter.prototype.highlighter = function highlighter (source, highlight) {
   }
   return source;
 };
+
+Snippeter.prototype.snippetKeywords = function snippetKeywords (snippet)
+{
+  return snippet.keywords;
+}
+
+Snippeter.prototype.snippetValue = function snippetValue (snippet)
+{
+  return snippet.value;
+}
 
