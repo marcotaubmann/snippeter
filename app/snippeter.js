@@ -40,8 +40,7 @@ Snippeter.prototype.keydown = function keydown (event)
   var text = element.val();
   var caretPos = element.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
-  if (startTagPos >= 0) {
-    //found open tag before caret
+  if (startTagPos >= 0) { //found open tag before caret
     if ( event.keyCode === 13) { //enter
       event.preventDefault();
       this.insertSelected();
@@ -61,9 +60,12 @@ Snippeter.prototype.keyup = function keyup (event)
   var text = element.val();
   var caretPos = element.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
-  if (startTagPos >= 0) {
-    //found open tag before caret
-    if ( -1 === $.inArray(event.keyCode, [13, 38, 40])) {
+  if (startTagPos >= 0) { //found open tag before caret
+    if (event.keyCode === 27) { // Escape
+      this.deleteTag(element);
+    } else if ( -1 === $.inArray(event.keyCode, [13, 27, 38, 40])) { //other keys than our special keys
+      // (27 should not occur here but keep it for safety if code is restructured)
+      // search and display snippets
       var searchText = text.substring(startTagPos + this.startTag.length, caretPos);
       var snippets = this.filterSnippets(searchText);
       this.updateList(snippets, searchText, element);
@@ -143,9 +145,7 @@ Snippeter.prototype.updateList = function updateList (snippets, searchText, targ
     var that = this;
     snippets.forEach(function (snippet) {
       var snippetHtml = that.snippetToHtml(snippet);
-      console.log(snippetHtml);
       snippetHtml = that.highlighter(snippetHtml, searchText);
-      console.log(snippetHtml);
       var snippetElement = $(snippetHtml);
       snippetElement.click(function () {
         that.insert(snippet, target);
@@ -158,7 +158,11 @@ Snippeter.prototype.updateList = function updateList (snippets, searchText, targ
   }
 
   if (triggerUpdate) {
-    this.listElement.trigger({type: 'update', relatedTarget: target[0]});
+    var options = {type: 'update'};
+    if (target) {
+      options.relatedTarget = target[0];
+    }
+    this.listElement.trigger(options);
   }
 }
 
@@ -189,6 +193,24 @@ Snippeter.prototype.insert = function insert (snippet, target)
   target.trigger('keyup');
 }
 
+Snippeter.prototype.deleteTag = function deleteTag (target)
+{
+  console.log('deleteTag ');
+
+  var text = target.val();
+  var caretPos = target.caret();
+  var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
+
+  target.val(
+    text.substring(0, startTagPos)
+    + text.substring(caretPos)
+  );
+
+  target.caret(startTagPos);
+
+  target.trigger('keyup');
+}
+
 Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
   var words = input.split(' ');
   var i;
@@ -209,7 +231,6 @@ Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
 
 Snippeter.prototype.snippetToHtml = function snippetToHtml (snippet)
 {
-  console.log('snippetToHtml', snippet);
   if (typeof snippet === 'string') {
     return '<div>' + snippet + '</div>';
   }
