@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>textarea-snippets</title>
+  <style type="text/css">
+    .selected {
+      background-color: #eee;
+    }
+    .highlight {
+      background-color: green;
+      color: white;
+    }
+  </style>
+</head>
+<body>
+  <textarea name="longtext" class="snippetInput" cols="30" rows="10"></textarea>
+  <div class="snippetList"></div>
+
+  <script type="text/javascript" src="https://code.jquery.com/jquery-2.1.3.min.js"></script>
+  <script type="text/javascript" src="https://rawgit.com/accursoft/caret/master/jquery.caret.js"></script>
+  <script type="text/javascript" src="snippeter.js"></script>
+  <script type="text/javascript" >
+    $(document).ready(function () {
+
+      $('.snippetList').on('update', function (event) {
+        console.log('.snippetList update', event);
+      });
+
+      var snippeter = new Snippeter ({
+        startTag: '##',
+        inputElements: $('.snippetInput'),
+        listElement: $('.snippetList'),
+        snippets: [
+          'Marco',
+          'Marco ist der beste',
+          'der Beste!'
+        ]
+      });
+    });
+  </script>
+</body>
+</html>
