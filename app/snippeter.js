@@ -36,6 +36,10 @@ Snippeter.prototype.init = function init ()
   this.inputElements.click(function (event) {
     that.inputElementUpdate(event);
   });
+
+  this.inputElements.focusout(function (event) {
+    that.updateList(null, null, $(event.target));
+  });
 }
 
 Snippeter.prototype.keydown = function keydown (event)
