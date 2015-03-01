@@ -30,7 +30,11 @@ Snippeter.prototype.init = function init ()
   });
 
   this.inputElements.keyup(function (event) {
-    that.keyup(event)
+    that.inputElementUpdate(event);
+  });
+
+  this.inputElements.click(function (event) {
+    that.inputElementUpdate(event);
   });
 }
 
@@ -54,7 +58,7 @@ Snippeter.prototype.keydown = function keydown (event)
   }
 }
 
-Snippeter.prototype.keyup = function keyup (event)
+Snippeter.prototype.inputElementUpdate = function inputElementUpdate (event)
 {
   var element = $(event.target);
   var text = element.val();

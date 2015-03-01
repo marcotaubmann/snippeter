@@ -80,5 +80,44 @@
 
     });
   </script>
+
+
+  <hr>
+  <h1>Extreme example</h1>
+
+  Starttag: <input id="extremeStartTag" type="text" value="++" />
+  <br />
+  <div id="extremeList"></div>
+
+  <script type="text/javascript" >
+    $(document).ready(function () {
+
+      var startTag = $('#extremeStartTag');
+
+      $('#extremeList').on('update', function (event) {
+        console.log('#extremeList update', event);
+      });
+
+      'Such dir eins aus!'.split(' ').forEach(function (word) {
+        $('#extremeList').before('<textarea class="extremeInput" cols="30" rows="5">'+word+'</textarea>');
+      });
+
+      var snippeter = new Snippeter ({
+        startTag: startTag.val(),
+        inputElements: $('.extremeInput'),
+        listElement: $('#extremeList'),
+        snippets: [
+          {keywords: 'Name', value: 'Marco'},
+          {keywords: 'Lob', value: 'Marco ist der beste'},
+          {keywords: 'korrekte Rechtschreibung', value: 'Der Beste!'}
+        ]
+      });
+
+      startTag.change(function () {
+        snippeter.startTag = startTag.val();
+      });
+
+    });
+  </script>
 </body>
 </html>
