@@ -4,19 +4,34 @@
   <meta charset="UTF-8">
   <title>textarea-snippets</title>
   <style type="text/css">
+    .list {
+      background-color: #8d8;
+    }
     .selected {
-      background-color: #eee;
+      background-color: #88d;
     }
     .highlight {
-      background-color: green;
+      background-color: #d88;
       color: white;
     }
     .keywords {
+      font-style: italic;
       float: left;
       min-width: 60px;
       padding-right: 5px;
       margin-right: 5px;
-      border-right: 1px dashed grey;
+      border-right: 3px dotted #ddd;
+    }
+
+    #complexExample {
+      position: relative;
+    }
+
+    #complexList {
+      position: absolute;
+      width: 400px;
+      max-height: 100px;
+      overflow: auto;
     }
   </style>
 </head>
@@ -27,19 +42,20 @@
 
   <h1>Basic example</h1>
 
-  <textarea name="longtext" class="snippetInput" cols="30" rows="5"></textarea>
-  <div class="snippetList"></div>
+  <textarea id="basicInput" cols="30" rows="5">Type two # to enable Snippeter.</textarea>
+  <div id="basicList" class="list"></div>
 
   <script type="text/javascript" >
     $(document).ready(function () {
       var snippeter = new Snippeter ({
         startTag: '##',
-        inputElements: $('.snippetInput'),
-        listElement: $('.snippetList'),
+        inputElements: $('#basicInput'),
+        listElement: $('#basicList'),
         snippets: [
-          'Marco',
-          'Marco ist der beste',
-          'der Beste!'
+          'Press ESC to abort Snippeter.',
+          'Type text to filter candidate snippets.',
+          'Press UP/DOWN to select snippet.',
+          'Press ENTER to insert selected snippet.'
         ]
       });
     });
@@ -47,30 +63,26 @@
 
 
   <hr>
-  <h1>Complex example</h1>
+  <h1>Advanced example</h1>
 
-  Starttag: <input id="complexStartTag" type="text" value="++" />
+  choose your start tag: <input id="advancedStartTag" type="text" value="++" />
   <br />
-  <textarea id="complexInput" cols="30" rows="5"></textarea>
-  <div id="complexList"></div>
+  <textarea id="advancedInput" cols="30" rows="5">Type your start tag to enable Snippeter.</textarea>
+  <div id="advancedList" class="list"></div>
 
   <script type="text/javascript" >
     $(document).ready(function () {
 
-      var startTag = $('#complexStartTag');
-
-      $('#complexList').on('update', function (event) {
-        console.log('#complexList update', event);
-      });
+      var startTag = $('#advancedStartTag');
 
       var snippeter = new Snippeter ({
         startTag: startTag.val(),
-        inputElements: $('#complexInput'),
-        listElement: $('#complexList'),
+        inputElements: $('#advancedInput'),
+        listElement: $('#advancedList'),
         snippets: [
-          {keywords: 'Name', value: 'Marco'},
-          {keywords: 'Lob', value: 'Marco ist der beste'},
-          {keywords: 'korrekte Rechtschreibung', value: 'Der Beste!'}
+          {keywords: 'Keywords', value: 'Type text to filter candidate snippets also by keywords.'},
+          {keywords: 'Snippet value', value: 'Press ENTER to insert only the value of the selected snippet, not the keywords.'},
+          {keywords: 'keywords can be shortcuts for long and complex snippet values', value: '... or vice versa :)'}
         ]
       });
 
@@ -83,33 +95,43 @@
 
 
   <hr>
-  <h1>Extreme example</h1>
+  <div id="complexExample">
+    <h1>Complex example</h1>
 
-  Starttag: <input id="extremeStartTag" type="text" value="++" />
-  <br />
-  <div id="extremeList"></div>
+    Starttag: <input id="complexStartTag" type="text" value="++" />
+    <br />
+    <div id="complexList" class="list"></div>
+  </div>
 
   <script type="text/javascript" >
     $(document).ready(function () {
 
-      var startTag = $('#extremeStartTag');
+      var startTag = $('#complexStartTag');
+      var complexList = $('#complexList');
 
-      $('#extremeList').on('update', function (event) {
-        console.log('#extremeList update', event);
+      complexList.on('update', function (event) {
+        var inputElement = $(event.relatedTarget);
+        var offset = inputElement.offset();
+        offset.top -= complexList.height();
+        complexList.offset(offset);
       });
 
-      'Such dir eins aus!'.split(' ').forEach(function (word) {
-        $('#extremeList').before('<textarea class="extremeInput" cols="30" rows="5">'+word+'</textarea>');
+      'Do what you learned and switch between the inputs.'.split(' ').forEach(function (word) {
+        complexList.before('<textarea class="complexInput" cols="30" rows="5">'+word+'</textarea>');
       });
 
       var snippeter = new Snippeter ({
         startTag: startTag.val(),
-        inputElements: $('.extremeInput'),
-        listElement: $('#extremeList'),
+        inputElements: $('.complexInput'),
+        listElement: complexList,
         snippets: [
-          {keywords: 'Name', value: 'Marco'},
-          {keywords: 'Lob', value: 'Marco ist der beste'},
-          {keywords: 'korrekte Rechtschreibung', value: 'Der Beste!'}
+          {keywords: 'Polygamy', value: 'One snippeter can be applied to multiple inputs.'},
+          {keywords: 'awesome', value: 'You can switch between inputs during snippet search.'},
+          {keywords: 'update', value: 'The snippeter triggers update events on your list so you can move it around there.'},
+          {keywords: 'not so awesome: Todo', value: 'But there are still things to do.'},
+          {keywords: 'Todo Wish 1', value: 'Click on an snippet in the list to insert it. (This was lost when making the list disappear on leaving the input, please bring it back again.)'},
+          {keywords: 'Todo Wish 2', value: 'Scroll the snippet list if it is scrollable. You know what I Mean? Kind of related to wish 1.'},
+          {keywords: 'contribute', value: 'Fork me on github and improve me.'},
         ]
       });
 
