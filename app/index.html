@@ -123,10 +123,15 @@ To enable Snippeter type two # as the start tag.
         var complexList = $('#complexList');
 
         complexList.on('update', function (event) {
-          var inputElement = $(event.relatedTarget);
-          var offset = inputElement.offset();
-          offset.top = offset.top - complexList.height();
-          complexList.offset(offset);
+          if (complexList.children().length === 0) {
+            complexList.hide();
+          } else {
+            complexList.show();
+            var inputElement = $(event.relatedTarget);
+            var offset = inputElement.offset();
+            offset.top = offset.top - complexList.height();
+            complexList.offset(offset);
+          }
         });
 
         'Do what you learned and switch between the inputs.'.split(' ').forEach(function (word) {
