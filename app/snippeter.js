@@ -29,20 +29,32 @@ Snippeter.prototype.init = function init ()
     that.keydown(event);
   });
 
-  this.inputElements.on('keyup click', function (event) {
-    if ([13,27,38,40].indexOf(event.keyCode) <= -1)  {
+  this.inputElements.on('keyup click focusin', function (event) {
+    if ([9, 13,27,38,40].indexOf(event.keyCode) <= -1)  {
       that.inputElementUpdate($(event.target));
     }
   });
 
-  this.inputElements.on('focusout', function (event) {
-    that.cleanList($(event.target));
+  $(document).click(function (event) {
+    if ( event.target === that.listElement[0] // clicked list
+         || $.contains(that.listElement[0], event.target) // clicked into list
+         || that.inputElements.index(event.target) >= 0 // clicked into one of the input elements
+    )
+    {
+      return;
+    }
+    that.cleanList(that.inputElements.first());
   });
 }
 
 Snippeter.prototype.keydown = function keydown (event)
 {
   var inputElement = $(event.target);
+  if ( event.keyCode === 9) { //tab
+    this.cleanList(inputElement);
+    return;
+  }
+
   var text = inputElement.val();
   var caretPos = inputElement.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
@@ -53,7 +65,6 @@ Snippeter.prototype.keydown = function keydown (event)
     } else if (event.keyCode === 27) { //escape
       this.deleteTag(inputElement);
       this.inputElementUpdate(inputElement);
-      event.preventDefault();
     } else if (event.keyCode === 38) { //up
       event.preventDefault();
       this.selectionUp();
