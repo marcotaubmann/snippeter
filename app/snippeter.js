@@ -25,33 +25,35 @@ Snippeter.prototype.init = function init ()
 
   var that = this;
 
-  this.inputElements.keydown(function (event) {
+  this.inputElements.on('keydown', function (event) {
     that.keydown(event);
   });
 
-  this.inputElements.keyup(function (event) {
-    that.inputElementUpdate(event);
+  this.inputElements.on('keyup click', function (event) {
+    if ([13,27,38,40].indexOf(event.keyCode) <= -1)  {
+      that.inputElementUpdate($(event.target));
+    }
   });
 
-  this.inputElements.click(function (event) {
-    that.inputElementUpdate(event);
-  });
-
-  this.inputElements.focusout(function (event) {
-    that.updateList(null, null, $(event.target));
+  this.inputElements.on('focusout', function (event) {
+    that.cleanList($(event.target));
   });
 }
 
 Snippeter.prototype.keydown = function keydown (event)
 {
-  var element = $(event.target);
-  var text = element.val();
-  var caretPos = element.caret();
+  var inputElement = $(event.target);
+  var text = inputElement.val();
+  var caretPos = inputElement.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
   if (startTagPos >= 0) { //found open tag before caret
     if ( event.keyCode === 13) { //enter
       event.preventDefault();
       this.insertSelected();
+    } else if (event.keyCode === 27) { //escape
+      this.deleteTag(inputElement);
+      this.inputElementUpdate(inputElement);
+      event.preventDefault();
     } else if (event.keyCode === 38) { //up
       event.preventDefault();
       this.selectionUp();
@@ -62,25 +64,20 @@ Snippeter.prototype.keydown = function keydown (event)
   }
 }
 
-Snippeter.prototype.inputElementUpdate = function inputElementUpdate (event)
+Snippeter.prototype.inputElementUpdate = function inputElementUpdate (inputElement)
 {
-  var element = $(event.target);
-  var text = element.val();
-  var caretPos = element.caret();
+  console.log('inputElementUpdate: ', inputElement);
+  var text = inputElement.val();
+  var caretPos = inputElement.caret();
   var startTagPos = text.substring(0,caretPos).lastIndexOf(this.startTag);
-  if (startTagPos >= 0) { //found open tag before caret
-    if (event.keyCode === 27) { // Escape
-      this.deleteTag(element);
-    } else if ( -1 === $.inArray(event.keyCode, [13, 27, 38, 40])) { //other keys than our special keys
-      // (27 should not occur here but keep it for safety if code is restructured)
+  if (startTagPos >= 0) { // found open tag before caret
       // search and display snippets
       var searchText = text.substring(startTagPos + this.startTag.length, caretPos);
       var snippets = this.filterSnippets(searchText);
-      this.updateList(snippets, searchText, element);
-    }
-  } else {
+      this.updateList(snippets, searchText, inputElement);
+  } else { // there is no open tag before caret
     //clean list
-    this.updateList(null, null, element);
+    this.cleanList(inputElement);
   }
 };
 
@@ -138,15 +135,17 @@ Snippeter.prototype.filterSnippets = function filterSnippets (searchText)
   }
 }
 
-Snippeter.prototype.updateList = function updateList (snippets, searchText, target)
+Snippeter.prototype.cleanList = function cleanList (relatedTarget)
 {
-  console.log('updateList: ', snippets);
+  console.log('cleanList: ', relatedTarget);
+  this.listElement.empty();
+  this.listElement.trigger({type: 'update', relatedTarget: relatedTarget[0]});
+}
 
-  var triggerUpdate = false;
+Snippeter.prototype.updateList = function updateList (snippets, searchText, relatedTarget)
+{
+  console.log('updateList: ', snippets, searchText, relatedTarget);
 
-  if (this.listElement.children().length) {
-    triggerUpdate = true;
-  }
   this.listElement.empty();
 
   if (snippets && snippets.length) {
@@ -156,22 +155,16 @@ Snippeter.prototype.updateList = function updateList (snippets, searchText, targ
       snippetHtml = that.highlighter(snippetHtml, searchText);
       var snippetElement = $(snippetHtml);
       snippetElement.click(function () {
-        that.insert(snippet, target);
+        that.insert(snippet, relatedTarget);
+        that.inputElementUpdate(relatedTarget);
       });
       snippetElement.appendTo(that.listElement);
     });
 
     this.selectFirst();
-    triggerUpdate = true;
   }
 
-  if (triggerUpdate) {
-    var options = {type: 'update'};
-    if (target) {
-      options.relatedTarget = target[0];
-    }
-    this.listElement.trigger(options);
-  }
+  this.listElement.trigger({type: 'update', relatedTarget: relatedTarget[0]});
 }
 
 Snippeter.prototype.insert = function insert (snippet, target)
@@ -198,7 +191,6 @@ Snippeter.prototype.insert = function insert (snippet, target)
 
   target.caret(startTagPos + snippetValue.length);
 
-  target.trigger('keyup');
 }
 
 Snippeter.prototype.deleteTag = function deleteTag (target)
@@ -215,8 +207,6 @@ Snippeter.prototype.deleteTag = function deleteTag (target)
   );
 
   target.caret(startTagPos);
-
-  target.trigger('keyup');
 }
 
 Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
