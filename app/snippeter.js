@@ -95,13 +95,13 @@ Snippeter.prototype.inputElementUpdate = function inputElementUpdate (inputEleme
 Snippeter.prototype.selectFirst = function selectFirst ()
 {
   this.listElement.children('.selected').removeClass('selected');
-  this.listElement.children().first().addClass('selected');
+  this.listElement.children().first().addClass('selected').trigger('select');
 }
 
 Snippeter.prototype.selectLast = function selectLast ()
 {
   this.listElement.children('.selected').removeClass('selected');
-  this.listElement.children().last().addClass('selected');
+  this.listElement.children().last().addClass('selected').trigger('select');
 }
 
 Snippeter.prototype.selectionUp = function selectionUp ()
@@ -109,7 +109,7 @@ Snippeter.prototype.selectionUp = function selectionUp ()
   var selected = this.listElement.children('.selected');
   selected.removeClass('selected');
   if (selected.prev().length) {
-    selected.prev().addClass('selected');
+    selected.prev().addClass('selected').trigger('select');
   } else {
     this.selectLast();
   }
@@ -120,7 +120,7 @@ Snippeter.prototype.selectionDown = function selectionDown ()
   var selected = this.listElement.children('.selected');
   selected.removeClass('selected');
   if (selected.next().length) {
-    selected.next().addClass('selected');
+    selected.next().addClass('selected').trigger('select');
   } else {
     this.selectFirst();
   }
@@ -128,7 +128,7 @@ Snippeter.prototype.selectionDown = function selectionDown ()
 
 Snippeter.prototype.insertSelected = function insertSelected ()
 {
-  this.listElement.children('.selected').trigger('click');
+  this.listElement.children('.selected').trigger('insert');
 }
 
 
@@ -165,17 +165,16 @@ Snippeter.prototype.updateList = function updateList (snippets, searchText, rela
       var snippetHtml = that.snippetToHtml(snippet);
       snippetHtml = that.highlighter(snippetHtml, searchText);
       var snippetElement = $(snippetHtml);
-      snippetElement.click(function () {
+      snippetElement.on('click insert', function () {
         that.insert(snippet, relatedTarget);
         that.inputElementUpdate(relatedTarget);
       });
       snippetElement.appendTo(that.listElement);
     });
-
-    this.selectFirst();
   }
 
   this.listElement.trigger({type: 'update', relatedTarget: relatedTarget[0]});
+  this.selectFirst();
 }
 
 Snippeter.prototype.insert = function insert (snippet, target)
@@ -201,7 +200,6 @@ Snippeter.prototype.insert = function insert (snippet, target)
   );
 
   target.caret(startTagPos + snippetValue.length);
-
 }
 
 Snippeter.prototype.deleteTag = function deleteTag (target)
