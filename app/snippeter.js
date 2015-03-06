@@ -3,12 +3,16 @@ function Snippeter (conf) {
   this.inputElements = null;
   this.startTag = '#';
   this.listElement = null;
+  this.caretTag ='[SnippeterCaretTag]';
+  this.excludeSign = '-';
 
   if ('snippets' in conf) this.snippets = conf.snippets;
   if ('inputElements' in conf) this.inputElements = conf.inputElements;
   if ('startTag' in conf) this.startTag = conf.startTag;
   if ('snippetToHtml' in conf) this.snippetToHtml = conf.snippetToHtml;
   if ('listElement' in conf) this.listElement = conf.listElement;
+  if ('caretTag' in conf) this.caretTag = conf.caretTag;
+  if ('excludeSign' in conf) this.excludeSign = conf.excludeSign;
   if ('snippetMatcher' in conf) this.snippetMatcher = conf.snippetMatcher;
   if ('highlighter' in conf) this.highlighter = conf.highlighter;
   if ('snippetKeywords' in conf) this.snippetKeywords = conf.snippetKeywords;
@@ -200,6 +204,12 @@ Snippeter.prototype.insert = function insert (snippet, target)
   );
 
   target.caret(startTagPos + snippetValue.length);
+
+  var caretTagPos = target.val().substring(0, target.caret()).lastIndexOf(this.caretTag);
+  if (caretTagPos >= 0) { // found caretTag
+    target.val(target.val().replace(this.caretTag, ''));
+    target.caret(caretTagPos);
+  }
 }
 
 Snippeter.prototype.deleteTag = function deleteTag (target)
@@ -218,33 +228,53 @@ Snippeter.prototype.deleteTag = function deleteTag (target)
   target.caret(startTagPos);
 }
 
-Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input) {
+Snippeter.prototype.snippetMatcher = function snippetMatcher (snippet, input)
+{
   var words = input.split(' ');
   var i;
   for (i = 0; i < words.length; i++) {
-    if (words[i] !== ' ' && words[i] !== '') {
-      var regExp = new RegExp('(' + words[i] + ')', 'gi');
-      if (typeof snippet === 'string' && !snippet.match(regExp)) {
-        return false;
-      }
-      if (typeof snippet === 'object'
-          && !(this.snippetKeywords(snippet).match(regExp) || this.snippetValue(snippet).match(regExp))
-      )
-        return false;
+    var word = words[i];
+    if (this.wordExcludesSnippet(word, snippet) ) {
+      return false;
     }
   }
   return true;
-};
+}
+
+Snippeter.prototype.wordExcludesSnippet = function wordBansSnippet (word, snippet)
+{
+  var wordAllowed = true;
+  if (word.charAt(0) === this.excludeSign) {
+    word = word.substring(1);
+    wordAllowed = false;
+  }
+  if (word === ' ' || word === '') {
+    return false;
+  }
+
+  var regExp = new RegExp('(' + word + ')', 'gi');
+
+  var wordContained = false;
+  if (typeof snippet === 'string') {
+    wordContained = $.isArray(snippet.replace(this.caretTag, '').match(regExp));
+  }
+  if (typeof snippet === 'object') {
+    wordContained = $.isArray(this.snippetKeywords(snippet).match(regExp))
+      || $.isArray(this.snippetValue(snippet).replace(this.caret, '').match(regExp));
+  }
+
+  return wordAllowed !== wordContained;
+}
 
 Snippeter.prototype.snippetToHtml = function snippetToHtml (snippet)
 {
   if (typeof snippet === 'string') {
-    return '<div>' + snippet + '</div>';
+    return '<div>' + snippet.replace(this.caretTag, '') + '</div>';
   }
   if (typeof snippet === 'object') {
     return '<div>'
       + '<div class="keywords">' + this.snippetKeywords(snippet) + '</div>'
-      + '<div class="value">' + this.snippetValue(snippet) + '</div>'
+      + '<div class="value">' + this.snippetValue(snippet).replace(this.caretTag, '') + '</div>'
       + '</div>';
   }
 };
