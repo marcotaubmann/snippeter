@@ -33,6 +33,9 @@
       max-height: 100px;
       overflow: auto;
     }
+    #complexList > div {
+      position: relative;
+    }
   </style>
 </head>
 <body>
@@ -40,106 +43,161 @@
   <script type="text/javascript" src="https://rawgit.com/accursoft/caret/master/jquery.caret.js"></script>
   <script type="text/javascript" src="snippeter.js"></script>
 
-  <h1>Basic example</h1>
 
-  <textarea id="basicInput" cols="30" rows="5">Type two # to enable Snippeter.</textarea>
-  <div id="basicList" class="list"></div>
+  <div id="basicExample">
+    <h1>Basic example</h1>
 
-  <script type="text/javascript" >
-    $(document).ready(function () {
-      var snippeter = new Snippeter ({
-        startTag: '##',
-        inputElements: $('#basicInput'),
-        listElement: $('#basicList'),
-        snippets: [
-          'Press ESC to abort Snippeter.',
-          'Type text to filter candidate snippets.',
-          'Press UP/DOWN to select snippet.',
-          'Press ENTER to insert selected snippet.'
-        ]
+    <textarea id="basicInput" cols="90" rows="5">Welcome to Snippeter!
+
+Snippeter allows you to easily insert snippets at the cursor position of an input element.
+To enable Snippeter type two # as the start tag.
+</textarea>
+    <div id="basicList" class="list"></div>
+
+    <script type="text/javascript" >
+      $(document).ready(function () {
+        var snippeter = new Snippeter ({
+          startTag: '##',
+          inputElements: $('#basicInput'),
+          listElement: $('#basicList'),
+          snippets: [
+            'Here you see a list of candidate snippets.',
+            'Press ESC to abort Snippeter.',
+            'Type text to filter candidate snippets.',
+            'Press UP/DOWN to select snippet.',
+            'Press ENTER to insert selected snippet.'
+          ]
+        });
       });
-    });
-  </script>
+    </script>
+  </div>
 
 
   <hr>
-  <h1>Advanced example</h1>
 
-  choose your start tag: <input id="advancedStartTag" type="text" value="++" />
-  <br />
-  <textarea id="advancedInput" cols="30" rows="5">Type your start tag to enable Snippeter.</textarea>
-  <div id="advancedList" class="list"></div>
 
-  <script type="text/javascript" >
-    $(document).ready(function () {
+  <div id="advancedExample">
+    <h1>Advanced example</h1>
 
-      var startTag = $('#advancedStartTag');
+    choose your start tag: <input id="advancedStartTag" type="text" value="++" />
+    <br />
+    <textarea id="advancedInput" cols="30" rows="5">Type your start tag to enable Snippeter.</textarea>
+    <div id="advancedList" class="list"></div>
 
-      var snippeter = new Snippeter ({
-        startTag: startTag.val(),
-        inputElements: $('#advancedInput'),
-        listElement: $('#advancedList'),
-        snippets: [
-          {keywords: 'Keywords', value: 'Type text to filter candidate snippets also by keywords.'},
-          {keywords: 'Snippet value', value: 'Press ENTER to insert only the value of the selected snippet, not the keywords.'},
-          {keywords: 'keywords can be shortcuts for long and complex snippet values', value: '... or vice versa :)'}
-        ]
+    <script type="text/javascript" >
+      $(document).ready(function () {
+
+        var startTag = $('#advancedStartTag');
+
+        var snippeter = new Snippeter ({
+          startTag: startTag.val(),
+          inputElements: $('#advancedInput'),
+          listElement: $('#advancedList'),
+          snippets: [
+            {keywords: 'Keywords', value: 'Type text to filter candidate snippets also by keywords.'},
+            {keywords: 'Snippet value', value: 'Press ENTER to insert only the value of the selected snippet, not the keywords.'},
+            {keywords: 'keywords can be shortcuts for long and complex snippet values', value: '... or vice versa :)'}
+          ]
+        });
+
+        startTag.change(function () {
+          snippeter.startTag = startTag.val();
+        });
+
       });
-
-      startTag.change(function () {
-        snippeter.startTag = startTag.val();
-      });
-
-    });
-  </script>
+    </script>
+  </div>
 
 
   <hr>
+
+
   <div id="complexExample">
     <h1>Complex example</h1>
 
     Starttag: <input id="complexStartTag" type="text" value="++" />
     <br />
     <div id="complexList" class="list"></div>
+
+    <script type="text/javascript" >
+      $(document).ready(function () {
+
+        var startTag = $('#complexStartTag');
+        var complexList = $('#complexList');
+
+        'Do what you learned and switch between the inputs.'.split(' ').forEach(function (word) {
+          complexList.before('<textarea id="'+word+'" class="complexInput" cols="30" rows="5">'+word+'</textarea>');
+        });
+
+        var snippeter = new Snippeter ({
+          startTag: startTag.val(),
+          inputElements: $('.complexInput'),
+          listElement: complexList,
+          caretTag: '[caret]',
+          excludeSign: '-',
+          snippets: [
+            {keywords: 'Polygamy', value: 'One snippeter can be applied to multiple inputs.'},
+            {keywords: 'awesome', value: 'You can switch between inputs during snippet search.'},
+            {keywords: 'update', value: 'The snippeter triggers update events on your list so you can move it around there.'},
+            {keywords: 'not so awesome: Todo', value: 'But there are still things to do.'},
+            {keywords: 'Todo Wish 1', value: 'Click on an snippet in the list to insert it. (This was lost when making the list disappear on leaving the input, please bring it back again.)'},
+            {keywords: 'Todo Wish 2', value: 'Scroll the snippet list if it is scrollable. You know what I Mean? Kind of related to wish 1.'},
+            {keywords: 'contribute', value: 'Fork me on github and improve me.'},
+            {keywords: 'exclude', value: 'You can use a dash before a word, to excludes results that include that word. Slowly type your start tag and "yes -no" while observing the snippet list!'},
+            {keywords: 'exclude', value: 'yes no'},
+            {keywords: 'exclude', value: 'yes'},
+            {keywords: 'insane', value: 'You can even link to more snippets if you have the start tag: try the two next snippet'},
+            {keywords: 'next snippet', value: 'My best friend is ++-selfexclude name'},
+            {keywords: 'next snippet with caret positioning', value: '++-selfexclude name[caret] is my best friend.'},
+            {keywords: 'name', value: 'Marco'},
+            {keywords: 'random name', value: 'Basti'},
+            {keywords: 'another name', value: 'Andi'},
+            {keywords: 'last name', value: 'Wolfi'}
+          ]
+        });
+
+        startTag.change(function () {
+          snippeter.startTag = startTag.val();
+        });
+
+        //complex customization of the snippet list
+        complexList.on('update', function (event) { // Snippeter triggers update event
+          if (complexList.children().length === 0) {
+            complexList.hide();
+          } else {
+            complexList.show();
+
+            //position the list on top of the current input element
+            var inputElement = $(event.relatedTarget);
+            var offset = inputElement.offset();
+            offset.top = offset.top - complexList.height();
+            complexList.offset(offset);
+
+            //if the selected snippet is not displayed because of scolling, scroll it to the middle of the list
+            complexList.children().on('select', function (event) { // Snippeter triggers select event
+              var scrollTop = complexList.scrollTop();
+              var scrollBottom = scrollTop + complexList.innerHeight();
+              var snippetAbsoluteTop = $(event.target).position().top + scrollTop;
+              var snippetHeight = $(event.target).height();
+              var snippetAbsoluteBottom = snippetAbsoluteTop + snippetHeight;
+              if ( snippetAbsoluteTop < scrollTop // the selected snippet is above the visible scroll view
+                  || snippetAbsoluteBottom > scrollBottom // the selecte snippet is below the visible scroll view
+              )
+              {
+                complexList.animate(
+                  {scrollTop: snippetAbsoluteTop + snippetHeight/2 - complexList.height()/2},
+                  200
+                );
+              }
+            });
+          }
+        });
+
+      });
+    </script>
   </div>
 
-  <script type="text/javascript" >
-    $(document).ready(function () {
 
-      var startTag = $('#complexStartTag');
-      var complexList = $('#complexList');
 
-      complexList.on('update', function (event) {
-        var inputElement = $(event.relatedTarget);
-        var offset = inputElement.offset();
-        offset.top -= complexList.height();
-        complexList.offset(offset);
-      });
-
-      'Do what you learned and switch between the inputs.'.split(' ').forEach(function (word) {
-        complexList.before('<textarea class="complexInput" cols="30" rows="5">'+word+'</textarea>');
-      });
-
-      var snippeter = new Snippeter ({
-        startTag: startTag.val(),
-        inputElements: $('.complexInput'),
-        listElement: complexList,
-        snippets: [
-          {keywords: 'Polygamy', value: 'One snippeter can be applied to multiple inputs.'},
-          {keywords: 'awesome', value: 'You can switch between inputs during snippet search.'},
-          {keywords: 'update', value: 'The snippeter triggers update events on your list so you can move it around there.'},
-          {keywords: 'not so awesome: Todo', value: 'But there are still things to do.'},
-          {keywords: 'Todo Wish 1', value: 'Click on an snippet in the list to insert it. (This was lost when making the list disappear on leaving the input, please bring it back again.)'},
-          {keywords: 'Todo Wish 2', value: 'Scroll the snippet list if it is scrollable. You know what I Mean? Kind of related to wish 1.'},
-          {keywords: 'contribute', value: 'Fork me on github and improve me.'},
-        ]
-      });
-
-      startTag.change(function () {
-        snippeter.startTag = startTag.val();
-      });
-
-    });
-  </script>
 </body>
 </html>
