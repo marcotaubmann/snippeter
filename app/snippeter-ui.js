@@ -164,8 +164,11 @@ $.widget( "marcotaubmann.snippeter", {
     if (snippets && snippets.length) {
       var that = this;
       snippets.forEach(function (snippet) {
-        var snippetHtml = that._snippetToHtml(snippet);
-        snippetHtml = that._highlight(snippetHtml, searchText);
+        var highlighted = {
+          keywords: that._highlight(that._snippetKeywords(snippet), searchText),
+          value: that._highlight(that._snippetValue(snippet), searchText)
+        };
+        var snippetHtml = that._snippetToHtml(highlighted);
         var snippetElement = $(snippetHtml)
           .addClass(that.options.nonselectedClass);
         snippetElement.on('click insert', function () {
@@ -283,11 +286,17 @@ $.widget( "marcotaubmann.snippeter", {
   },
 
   _snippetKeywords: function (snippet) {
-    return snippet.keywords;
+    if (typeof snippet === 'object') {
+      return snippet.keywords;
+    }
+    return '';
   },
 
   _snippetValue: function (snippet) {
-    return snippet.value;
+    if (typeof snippet === 'object') {
+      return snippet.value;
+    }
+    return snippet;
   }
 
 });
