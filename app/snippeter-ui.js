@@ -52,6 +52,8 @@ $.widget( "marcotaubmann.snippeter", {
       }
       that._clearList();
     });
+
+    this._refresh();
   },
 
   _keydown: function (event) {
