@@ -215,30 +215,17 @@ $.widget( "marcotaubmann.snippeter", {
 
     var regExp = new RegExp('(' + word + ')', 'gi');
 
-    var wordContained = false;
-    if (typeof snippet === 'string') {
-      wordContained = $.isArray(snippet.replace(this.options.caretTag, '').match(regExp));
-    }
-    if (typeof snippet === 'object') {
-      wordContained = $.isArray(this._snippetKeywords(snippet).match(regExp))
-        || $.isArray(this._snippetValue(snippet).replace(this.options.caret, '').match(regExp));
-    }
+    wordContained = $.isArray(this._snippetKeywords(snippet).match(regExp))
+      || $.isArray(this._snippetValue(snippet).replace(this.options.caret, '').match(regExp));
 
     return wordAllowed === wordContained;
   },
 
   _snippetToHtml: function (snippet) {
-    if (typeof snippet === 'string') {
-      return '<div class="' + this.options.snippetClass + ' ' + this.options.valueClass + '">'
-        + snippet.replace(this.options.caretTag, '')
-        + '</div>';
-    }
-    if (typeof snippet === 'object') {
       return '<div class="' + this.options.snippetClass + '">'
         + '<div class="' + this.options.keywordsClass + '">' + this._snippetKeywords(snippet) + '</div>'
         + '<div class="' + this.options.valueClass + '">' + this._snippetValue(snippet).replace(this.options.caretTag, '') + '</div>'
         + '</div>';
-    }
   },
 
   _highlight: function (text, search) {
@@ -262,13 +249,7 @@ $.widget( "marcotaubmann.snippeter", {
     var caretPos = this.element.caret();
     var activatorPos = text.substring(0,caretPos).lastIndexOf(this.options.activator);
 
-    var snippetValue;
-    if (typeof snippet === 'string') {
-      snippetValue = snippet;
-    }
-    if (typeof snippet === 'object') {
-      snippetValue = this._snippetValue(snippet);
-    }
+    var snippetValue = this._snippetValue(snippet);
 
     this.element.val(
       text.substring(0, activatorPos)
