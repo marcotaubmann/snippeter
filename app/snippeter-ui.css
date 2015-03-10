@@ -1,0 +1,18 @@
+.ui-snippeter-list
+{
+  position: absolute;
+}
+
+.ui-snippeter-snippet
+{
+  border-bottom: 1px dashed #aaaaaa;
+}
+
+.ui-snippeter-snippet-keywords
+{
+}
+
+.ui-snippeter-snippet-value
+{
+}
+
