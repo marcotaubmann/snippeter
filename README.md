@@ -1,5 +1,5 @@
 # Snippeter
-Javascript class to insert text snippets into HTML inputs.
+jQuery UI widget to quickly insert text snippets into inputs elements.
 
 ## Self explaning example application
-Have a look at [index.html](index.html) and try the [example application on github.io](http://marcotaubmann.github.io/snippeter/).
+Have a look at [app/index.html](app/index.html) and try the [demo on github.io](http://marcotaubmann.github.io/snippeter/).

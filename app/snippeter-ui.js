@@ -11,8 +11,8 @@ $.widget( "marcotaubmann.snippeter", {
     nonselectedClass: 'ui-menu-item',
     highlightClass: 'ui-state-highlight',
     snippetClass: 'ui-snippeter-snippet',
-    keywordsClass: 'ui-snippeter-snippet-keywords ui-priority-secondary',
-    valueClass: 'ui-snippeter-snippet-value ui-priority-primary',
+    keywordsClass: 'ui-snippeter-snippet-keywords ui-state-disabled',
+    valueClass: 'ui-snippeter-snippet-value',
     listElement: null // real default set in setOption constrain
   },
 
